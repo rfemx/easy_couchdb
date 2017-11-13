@@ -1,0 +1,5 @@
+COUCHDB_HOST=<hostname>
+COUCHDB_PORT=<port>
+COUCHDB_DB=<database>
+COUCHDB_USER=<username>
+COUCHDB_PASSWORD=<password>
