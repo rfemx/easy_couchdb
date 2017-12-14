@@ -4,18 +4,14 @@ const https = require('https');
 const { URL } = require('url');
 class CouchStorage {
 
-    constructor(host, port, db, userid, password, secure) {
-        this.host = host;
-        this.port = port;
-        this.db = db;
-        this.userid = userid;
-        this.password = password;
-        this.url = "http";
-        this.secure = secure;
-        if (secure) {
-            this.url += "s";
+    constructor(options) {
+        this.options = options;        
+        
+        this.protocol = "http";
+        if (this.options.use_https) {
+            this.protocol += "s";
         }
-        this.url += "://" + userid + ":" + password + "@" + host + ":" + port + "/" + db + "/";
+        this.url = this.protocol + "://" + options.username + ":" + options.password + "@" + options.host + ":" + options.port + "/" + options.db + "/";
     }
 
     async get(id) {
@@ -23,7 +19,7 @@ class CouchStorage {
         let url = _self.url + id;
         return new Promise((resolve, reject) => {
             try {
-                //util.log("loading [" + url + "]");
+                util.log("loading [" + _self.options.db + "/" + id + "]");
                 https.get(url, (resp) => {
                     let data = '';
                     resp.on('data', (chunk) => {
@@ -61,16 +57,16 @@ class CouchStorage {
                 let url = _self.url + docId;
                 // return new Promise((resolve, reject) => {            
                 var options = {
-                    href: _self.url,
-                    host: _self.host,
-                    username: _self.userid,
-                    password: _self.password,
-                    protocol: "https:",
-                    path: "/" + _self.db,
-                    port: _self.port,
+                    href: _self.options.url,
+                    host: _self.options.host,
+                    username: _self.options.username,
+                    password: _self.options.password,
+                    protocol: _self.options.protocol+":",
+                    path: "/" + _self.options.db,
+                    port: _self.options.port,
                     method: 'POST',
                     headers: {
-                        'Authorization': 'Basic ' + new Buffer(_self.userid + ':' + _self.password).toString('base64'),
+                        'Authorization': 'Basic ' + new Buffer(_self.options.username + ':' + _self.options.password).toString('base64'),
                         'Content-Type': 'application/json',
                         'Cache-Control': 'no-cache',
                         "Content-Length": Buffer.byteLength(JSON.stringify(doc)),

@@ -3,31 +3,32 @@ var util = require('util');
 var CouchStorage = require('./couchstorage');
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-var storage = new CouchStorage(
-    process.env.COUCHDB_HOST,
-    process.env.COUCHDB_PORT,
-    process.env.COUCHDB_DB,
-    process.env.COUCHDB_USERNAME,
-    process.env.COUCHDB_PASSWORD,
-    true
-);
+let options = {
+    host: process.env.COUCHDB_HOST,
+    port: process.env.COUCHDB_PORT,
+    db: process.env.COUCHDB_DB,
+    username: process.env.COUCHDB_USERNAME,
+    password: process.env.COUCHDB_PASSWORD,
+    use_https: true
+}
 
-async function main(){
-    util.log("get...");
+var storage = new CouchStorage(options);
 
-    try{
-
+async function main() {
+    try {
+        util.log("get...");
+        let reply1 = await storage.get("settings");
+        console.log(reply1);
         var json = {
             _id: "test5",
-            test:5,
+            test: 5,
             data: { "mydata": "data is here" }
         }
-        let replyUpdate = await storage.update(json);
-        console.log(replyUpdate);
+        let reply2 = await storage.update(json);
+        console.log(reply2);
         util.log("done.");
-        
-    
-    }catch( err ){
+    } catch (err) {
+        util.log("Error when loading data");
         util.log(err);
     }
 }
@@ -36,7 +37,7 @@ async function main(){
 main();
 
 
-process.on('unhandledRejection', (err) => { 
+process.on('unhandledRejection', (err) => {
     util.log(err)
     process.exit(1)
-  })
+})
